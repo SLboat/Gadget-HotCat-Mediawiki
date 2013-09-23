@@ -10,6 +10,8 @@
 警告，千万不要这里用这样的注释。
 <!-- 这个是热分类小工具脚本，这个注释放在外面就死了 -->
 
+所有的单独设置放置于: [[MediaWiki:Gadget-HotCat.js/local defaults]]
+
 源码和变更：
 https://github.com/SLboat/Gadget-HotCat-Mediawiki/
 */
@@ -45,7 +47,6 @@ if (typeof wgAction == 'undefined' && window.mediaWiki && window.mediaWiki.confi
 }
 if ((typeof window.HotCat == 'undefined' || window.HotCat.nodeName) && wgAction != 'edit') { // Guard against double inclusions, and inactivate on edit pages
 
-hotcat_translations_from_commons = false;  //一个全局设置，关闭从公共翻译获得
 // Configuration stuff.
 window.HotCat = {
   version: "V2.23 SLboat Mod", // 版本号信息，森亮号增加
