@@ -1,5 +1,5 @@
 //<source lang="javascript">
-
+ 
 /*
 森亮航海见识的修改：
 1. 整合搜索等文字修改
@@ -15,21 +15,21 @@ https://github.com/SLboat/Gadget-HotCat-Mediawiki/
 */
  
 /*
-  HotCat V2.23 SLboat Mod
+  HotCat V2.24 SLboat Mod
  
   Ajax-based simple Category manager. Allows adding/removing/changing categories on a page view.
   Supports multiple category changes, as well as redirect and disambiguation resolution. Also
   plugs into the upload form. Search engines to use for the suggestion list are configurable, and
   can be selected interactively.
-
+ 
   Documentation: https://commons.wikimedia.org/wiki/Help:Gadget-HotCat
   List of main authors: https://commons.wikimedia.org/wiki/Help:Gadget-HotCat/Version_history
-
+ 
   License: Quadruple licensed GFDL, GPL, LGPL and Creative Commons Attribution 3.0 (CC-BY-3.0)
-
+ 
   Choose whichever license of these you like best :-)
 */
-
+ 
 /*
   This code is MW version safe. It should run on any MediaWiki installation >= MW 1.15. Note: if
   running on MW >= 1.17 configured with $wgLegacyJavaScriptGlobals != true, it will still force
@@ -44,7 +44,7 @@ if (typeof wgAction == 'undefined' && window.mediaWiki && window.mediaWiki.confi
   window.wgAction = window.mediaWiki.config.get('wgAction');
 }
 if ((typeof window.HotCat == 'undefined' || window.HotCat.nodeName) && wgAction != 'edit') { // Guard against double inclusions, and inactivate on edit pages
-
+ 
 hotcat_translations_from_commons = false;  //一个全局设置，关闭从公共翻译获得
 // Configuration stuff.
 window.HotCat = {
@@ -177,7 +177,7 @@ window.HotCat = {
    // added using HotCat. For instance /\bstubs?$/ (any category ending with the word "stub"
    // or "stubs"), or /(\bstubs?$)|\bmaintenance\b/ (stub categories and any category with the
    // word "maintenance" in its title.
-
+ 
   // Stuff changeable by users:
  ,bg_changed : '#F8CCB0'
    // Background for changed categories in multi-edit mode. Default is a very light salmon pink.
@@ -223,9 +223,9 @@ window.HotCat = {
       }
     }
 };
-
+ 
 (function () { // Local scope to avoid polluting the global namespace with declarations
-
+ 
   // Backwards compatibility stuff. We want HotCat to work with either wg* globals, or with mw.config.get().
   // Our "solution" is to publish the wg* globals if they're not already published.
   if (window.mediaWiki && window.mediaWiki.config) {
@@ -263,7 +263,7 @@ window.HotCat = {
       } // end try-catch
       return request;
     }
-
+ 
     return function (settings) {
       var req = getRequest();
       if (!req && settings && settings.error) settings.error (req);
@@ -295,13 +295,13 @@ window.HotCat = {
       return req;
     };
   })();
-
+ 
   function armorUri (uri) {
     // Avoid protocol-relative URIs, IE7 has a bug with them in Ajax calls
     if (uri.length >= 2 && uri.substring(0, 2) == '//') return document.location.protocol + uri;
     return uri;
   }
-
+ 
   function LoadTrigger (needed) {
     this.queue = [];
     this.toLoad = needed;
@@ -314,7 +314,7 @@ window.HotCat = {
         this.queue[this.queue.length] = callback;
       }
     },
-
+ 
     loaded : function () {
       if (this.toLoad > 0) {
         this.toLoad--;
@@ -325,23 +325,23 @@ window.HotCat = {
         }
       }
     }
-
+ 
   };
-
+ 
   var setupCompleted = new LoadTrigger(1);
   // Used to run user-registered code once HotCat is fully set up and ready.
   HotCat.runWhenReady = function (callback) {setupCompleted.register(callback);};
-
+ 
   var loadTrigger = new LoadTrigger(2);
   // Used to delay running the HotCat setup until /local_defaults and localizations have been loaded.
-
+ 
   function load (uri) {
     var head = document.getElementsByTagName ('head')[0];
     var s = document.createElement ('script');
     s.setAttribute ('src', armorUri(uri));
     s.setAttribute ('type', 'text/javascript');
     var done = false;
-
+ 
     function afterLoad () {
       if (done) return;
       done = true;
@@ -349,7 +349,7 @@ window.HotCat = {
       if (head && s.parentNode) head.removeChild (s);
       loadTrigger.loaded();
     }
-
+ 
     s.onload = s.onreadystatechange = function () { // onreadystatechange for IE, onload for all others
       if (done) return;
       if (!this.readyState || this.readyState === 'loaded' || this.readyState === 'complete') {
@@ -359,11 +359,11 @@ window.HotCat = {
     s.onerror = afterLoad; // Clean up, but otherwise ignore errors
     head.insertBefore (s, head.firstChild); // appendChild may trigger bugs in IE6 here
   }
-
+ 
   function loadJS (page) {
     load (wgServer + wgScript + '?title=' + encodeURIComponent (page) + '&action=raw&ctype=text/javascript');
   }
-
+ 
   function loadURI (href) {
     var url = href;
     if (url.substring (0, 2) == '//') {
@@ -373,12 +373,12 @@ window.HotCat = {
     }
     load (url);
   }
-
+ 
   // Load local configurations, overriding the pre-set default values in the HotCat object above. This is always loaded
   // from the wiki where this script is executing, even if this script itself is hotlinked from the Commons. This can
   // be used to change the default settings, or to provide localized interface texts for edit summaries and so on.
   loadJS ('MediaWiki:Gadget-HotCat.js/local_defaults');
-
+ 
   // Load localized UI texts. These are the texts that HotCat displays on the page itself. Texts shown in edit summaries
   // should be localized in /local_defaults above.
   if (wgUserLanguage != 'en') {
@@ -401,9 +401,9 @@ window.HotCat = {
   } else {
     loadTrigger.loaded();
   }
-
+ 
   // No further changes should be necessary here.
-
+ 
   // The following regular expression strings are used when searching for categories in wikitext.
   var wikiTextBlank   = '[\\t _\\xA0\\u1680\\u180E\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000]+';
   var wikiTextBlankRE = new RegExp (wikiTextBlank, 'g');
@@ -423,7 +423,7 @@ window.HotCat = {
   // characters inside a category link. It _could_ be done though... We _do_ handle strange spaces, including the
   // zero-width space \u200B, and bidi overrides between the components of a category link (adjacent to the colon,
   // or adjacent to and inside of "[[" and "]]").
-
+ 
   // First auto-localize the regexps for the category and the template namespaces.
   if (typeof (wgFormattedNamespaces) != 'undefined') {
     function autoLocalize (namespaceNumber, fallback) {
@@ -444,7 +444,7 @@ window.HotCat = {
         return regex_name.replace(/([\\\^\$\.\?\*\+\(\)])/g, '\\$1')
                          .replace (wikiTextBlankRE, wikiTextBlank);
       }
-
+ 
       fallback = fallback.toLowerCase();
       var canonical  = wgFormattedNamespaces["" + namespaceNumber].toLowerCase();
       var regexp     = create_regexp_str (canonical);
@@ -460,7 +460,7 @@ window.HotCat = {
       }
       return regexp;
     }
-
+ 
     if (wgFormattedNamespaces['14']) {
       HotCat.category_canonical = wgFormattedNamespaces['14'];
       HotCat.category_regexp = autoLocalize (14, 'category');
@@ -469,7 +469,7 @@ window.HotCat = {
       HotCat.template_regexp = autoLocalize (10, 'template');
     }
   }
-
+ 
   // Utility functions. Yes, this duplicates some functionality that also exists in other places, but
   // to keep this whole stuff in a single file not depending on any other on-wiki Javascripts, we re-do
   // these few operations here.
@@ -517,9 +517,9 @@ window.HotCat = {
     return wgArticlePath.replace('$1', encodeURIComponent (pageName).replace(/%3A/g, ':').replace(/%2F/g, '/'));
   }
   function escapeRE(str) {
-    return str.replace(/([\\\^\$\.\?\*\+\(\)\[\]])/g, '\\$1');
+  	return str.replace(/([\\\^\$\.\?\*\+\(\)\[\]])/g, '\\$1');
   }
-  
+ 
   function substituteFactory (options) {
     options = options || {};
     var lead = options.indicator || '$';
@@ -527,7 +527,7 @@ window.HotCat = {
     var lbrace = escapeRE (options.lbrace || '{');
     var rbrace = escapeRE (options.rbrace || '}');
     var re;
-
+ 
     re = new RegExp(
        '(?:' + indicator + '(' + indicator + '))|'                                           // $$
       +'(?:' + indicator + '(\\d+))|'                                                        // $0, $1
@@ -548,7 +548,7 @@ window.HotCat = {
       );
     };
   }
-  
+ 
   var substitute = substituteFactory();
   var replaceShortcuts = (function () {
     var replaceHash = substituteFactory({indicator:'#',lbrace:'[',rbrace:']'});
@@ -557,16 +557,16 @@ window.HotCat = {
       return HotCat.capitalizePageNames ? capitalize(s) : s;
     };
   })();
-
+ 
   // Text modification
-
+ 
   var findCatsRE =
     new RegExp ('\\[\\[' + wikiTextBlankOrBidi + '(?:' + HotCat.category_regexp + ')' + wikiTextBlankOrBidi + ':[^\\]]+\\]\\]', 'g');
-
+ 
   function replaceByBlanks (match) {
     return match.replace(/(\s|\S)/g, ' '); // /./ doesn't match linebreaks. /(\s|\S)/ does.
   }
-
+ 
   function find_category (wikitext, category, once) {
     var cat_regex = null;
     if(HotCat.template_categories[category]){
@@ -596,11 +596,11 @@ window.HotCat = {
     result.re = cat_regex;
     return result; // An array containing all matches, with positions, in result[i].match
   }
-
+ 
   var interlanguageRE = null;
-
+ 
   function change_category (wikitext, toRemove, toAdd, key, is_hidden) {
-
+ 
     function find_insertionpoint (wikitext) {
       var copiedtext = wikitext.replace(/<\!--(\s|\S)*?--\>/g, replaceByBlanks)
                                .replace(/<nowiki\>(\s|\S)*?<\/nowiki>/g, replaceByBlanks);
@@ -624,11 +624,11 @@ window.HotCat = {
       }
       return {idx : index, onCat : index >= 0};
     }
-
+ 
     var summary   = [];
     var nameSpace = HotCat.category_canonical;
     var cat_point = -1; // Position of removed category;
-
+ 
     if (key) key = '|' + key;
     var keyChange = (toRemove && toAdd && toRemove == toAdd && toAdd.length > 0);
     if (toRemove && toRemove.length > 0) {
@@ -721,9 +721,9 @@ window.HotCat = {
     }
     return {text: wikitext, 'summary': summary, error: null};
   }
-
+ 
   // The real HotCat UI
-
+ 
   function evtKeys (e) {
     e = e || window.event || window.Event; // W3C, IE, Netscape
     var code = 0;
@@ -754,15 +754,15 @@ window.HotCat = {
     else if (node.addEventListener) node.addEventListener (evt, f, capture);
     else node['on' + evt] = f;
   }
-
+ 
   var catLine      = null;
   var onUpload     = false;
   var editors      = [];
-
+ 
   var commitButton = null;
   var commitForm   = null;
   var multiSpan    = null;
-
+ 
   var pageText     = null;
   var pageTime     = null;
   var pageWatched  = false;
@@ -770,15 +770,15 @@ window.HotCat = {
   var watchEdit    = false;
   var minorEdits   = false;
   var editToken    = null;
-
+ 
   var is_rtl       = false;
   var serverTime   = null;
   var lastRevId    = null;
   var pageTextRevId = null;
   var conflictingUser = null;
-
+ 
   var newDOM       = false; // true if MediaWiki serves the new UL-LI DOM for categories
-
+ 
   function setMultiInput () {
     if (commitButton || onUpload) return;
     commitButton = make ('input');
@@ -791,7 +791,7 @@ window.HotCat = {
       catLine.appendChild (commitButton);
     }
   }
-
+ 
   function checkMultiInput () {
     if (!commitButton) return;
     var has_changes = false;
@@ -803,7 +803,7 @@ window.HotCat = {
     }
     commitButton.disabled = !has_changes;
   }
-
+ 
   function currentTimestamp () {
     var now = new Date();
     var ts  = "" + now.getUTCFullYear();
@@ -816,7 +816,7 @@ window.HotCat = {
       + two ('00' + now.getUTCSeconds());
     return ts;
   }
-
+ 
   var saveInProgress = false;
   function initiateEdit (doEdit, failure) {
     if (saveInProgress) return;
@@ -826,15 +826,15 @@ window.HotCat = {
       oldButtonState = commitButton.disabled;
       commitButton.disabled = true;
     }
-
+ 
     function fail() {
       saveInProgress = false;
       if (commitButton) commitButton.disabled = oldButtonState;
       failure.apply(this, arguments);
     };
-
+ 
     // Must use Ajax here to get the user options and the edit token.
-    
+ 
     getJSON ({
        uri : wgServer + wgScriptPath + '/api.php'
       ,data : 'format=json&action=query&titles=' + encodeURIComponent (wgPageName)
@@ -845,7 +845,7 @@ window.HotCat = {
       ,error : function (req) { fail(req.status + ' ' + req.statusText); }
     });
   }
-
+ 
   function multiChangeMsg (count) {
     var msg = HotCat.messages.multi_change;
     if (typeof (msg) != 'string' && msg.length) {
@@ -857,7 +857,7 @@ window.HotCat = {
     }
     return substitute (msg, [null, "" + count]);     
   }
-
+ 
   function performChanges (failure, singleEditor) {
     if (pageText === null) {
       failure (HotCat.messages.multi_error);
@@ -1000,7 +1000,7 @@ window.HotCat = {
     // Submit the form in a way that triggers onsubmit events: commitForm.submit() doesn't.
     commitForm.hcCommit.click();
   }
-
+ 
   function resolveMulti (toResolve, callback) {
     for (var i = 0; i < toResolve.length; i++) {
       toResolve[i].dab = null;
@@ -1030,7 +1030,7 @@ window.HotCat = {
      ,error: function (req) { if (!req) noSuggestions = true; callback (toResolve); }
     });
   }
-
+ 
   function resolveOne (page, toResolve) {
     var cats     = page.categories;
     var lks      = page.links;
@@ -1084,12 +1084,12 @@ window.HotCat = {
       }
     }
   }
-
+ 
   function resolveRedirects (toResolve, params) {
     if (!params || !params.query || !params.query.pages) return;
     for (var p in params.query.pages) resolveOne (params.query.pages[p], toResolve);
   }
-
+ 
   function multiSubmit () {
     var toResolve = [];
     for (var i = 0; i < editors.length; i++) {
@@ -1126,7 +1126,7 @@ window.HotCat = {
         }
     );
   }
-
+ 
   var cat_prefix = null;
   var noSuggestions = false;
   var suggestionEngines = {
@@ -1221,7 +1221,7 @@ window.HotCat = {
           }
       }
   };
-
+ 
   var suggestionConfigs = {
     searchindex : {name: 'Search index', engines: ['opensearch'], cache: {}, show: true, temp: false, noCompletion : false}
    ,pagelist    : {name: 'Page list', engines: ['internalsearch'], cache: {}, show: true, temp: false, noCompletion : false}
@@ -1229,18 +1229,18 @@ window.HotCat = {
    ,subcat      : {name: 'Subcategories', engines: ['subcategories'], cache: {}, show: true, temp: true, noCompletion : true}
    ,parentcat   : {name: 'Parent categories', engines: ['parentcategories'], cache: {}, show: true, temp: true, noCompletion : true}
   };
-
+ 
   function CategoryEditor () { this.initialize.apply (this, arguments); };
   CategoryEditor.UNCHANGED      = 0;
   CategoryEditor.OPEN           = 1; // Open, but no input yet
   CategoryEditor.CHANGE_PENDING = 2; // Open, some input made
   CategoryEditor.CHANGED        = 3;
   CategoryEditor.DELETED        = 4;
-
+ 
   // IE6 sometimes forgets to redraw the list when editors are opened or closed.
   // Adding/removing a dummy element helps, at least when opening editors.
   var dummyElement = make ('\xa0', true);
-
+ 
   function forceRedraw () {
     if (!is_ie6) return;
     if (dummyElement.parentNode) {
@@ -1249,7 +1249,7 @@ window.HotCat = {
       document.body.appendChild (dummyElement);
     }
   }
-
+ 
   function makeActive (which) {
     if (which.is_active) return;
     for (var i = 0; i < editors.length; i++) {
@@ -1286,7 +1286,7 @@ window.HotCat = {
       }
     }
   }
-
+ 
   function showDab (which) {
     if (!which.is_active) {
       makeActive(which);
@@ -1295,9 +1295,9 @@ window.HotCat = {
       which.dab = null;
     }
   }
-
+ 
   CategoryEditor.prototype = {
-
+ 
     initialize : function (line, span, after, key, is_hidden) {
       // If a span is given, 'after' is the category title, otherwise it may be an element after which to
       // insert the new span. 'key' is likewise overloaded; if a span is given, it is the category key (if
@@ -1371,7 +1371,7 @@ window.HotCat = {
       }
       editors[editors.length] = this;
     },
-
+ 
     makeLinkSpan : function () {
       this.normalLinks = make ('span');
       var lk = null;
@@ -1411,7 +1411,7 @@ window.HotCat = {
       this.undelLink.appendChild (lk);
       this.linkSpan.appendChild (this.undelLink);
     },
-
+ 
     makeForm : function () {
       var form = make ('form');
       form.method = 'POST'; form.onsubmit = bind (this.accept, this);
@@ -1459,9 +1459,9 @@ window.HotCat = {
         text.onkeypress = function (evt) {self.keyCount++; return self.processKey (evt);};
       }
       this.text = text;
-
+ 
       this.icon = make ('img');
-
+ 
       var list = null;
       if (!noSuggestions) {
         list = make ('select');
@@ -1500,7 +1500,7 @@ window.HotCat = {
         }
       }
       this.list = list;
-
+ 
       function button_label (id, defaultText) {
         var label = null;
         if (   onUpload
@@ -1518,18 +1518,18 @@ window.HotCat = {
         if (!label || !label.data) return defaultText;
         return label.data;
       }
-
+ 
       // Do not use type 'submit'; we cannot detect modifier keys if we do
       var OK = make ('input'); OK.type = 'button';
       OK.value = button_label ('wpOkUploadLbl', HotCat.messages.ok);
       OK.onclick = bind (this.accept, this);
       this.ok = OK;
-
+ 
       var cancel = make ('input'); cancel.type = 'button';
       cancel.value = button_label ('wpCancelUploadLbl', HotCat.messages.cancel);
       cancel.onclick = bind (this.cancel, this);
       this.cancelButton = cancel;
-
+ 
       var span = make ('span');
       span.className = 'hotcatinput';
       span.style.position = 'relative';
@@ -1537,13 +1537,13 @@ window.HotCat = {
       // suggestions and the selector at the right edge of the screen if display of the input field causes a re-layout
       // moving the form to the front of the next line.
       span.appendChild (text);
-
+ 
       // IE8/IE9: put some text into this span (a0 is nbsp) and make sure it always stays on the
       // same line as the input field, otherwise, IE8/9 miscalculates the height of the span and
       // then the engine selector may overlap the input field.
       span.appendChild (make ('\xa0', true));
       span.style.whiteSpace = 'nowrap';
-
+ 
       if (list) span.appendChild (list);
       if (this.engineSelector) span.appendChild (this.engineSelector);
       if (!noSuggestions) span.appendChild (this.icon);
@@ -1560,7 +1560,7 @@ window.HotCat = {
       // property while the element is not being displayed.
       addEvent (text, (typeof text.onbeforedeactivate != 'undefined' && text.createTextRange) ? 'beforedeactivate' : 'blur', bind (this.saveView, this)); 
     },
-
+ 
     display : function (evt) {
       if (this.isAddCategory && !onUpload) {
         var newAdder = new CategoryEditor (this.line, null, this.span, true); // Create a new one
@@ -1602,7 +1602,7 @@ window.HotCat = {
       checkMultiInput ();
       return result;
     },
-
+ 
     show : function (evt, engine, readOnly) {
       var result = this.display (evt);
       var v = this.lastSavedCategory;
@@ -1617,15 +1617,15 @@ window.HotCat = {
     open : function (evt) {
       return this.show (evt, (this.engine && suggestionConfigs[this.engine].temp) ? HotCat.suggestions : this.engine);
     },
-
+ 
     down : function (evt) {
       return this.show (evt, 'subcat', true);
     },
-
+ 
     up : function (evt) {
       return this.show (evt, 'parentcat');
     },
-
+ 
     cancel : function () {
       if (this.isAddCategory && !onUpload) {
         this.removeEditor(); // We added a new adder when opening
@@ -1660,7 +1660,7 @@ window.HotCat = {
       checkMultiInput ();
       forceRedraw ();
     },
-
+ 
     removeEditor : function () {
       if (!newDOM) {
         var next = this.span.nextSibling;
@@ -1677,7 +1677,7 @@ window.HotCat = {
       var self = this;
       window.setTimeout (function () {delete self;}, 10);
     },
-
+ 
     rollback : function (evt) {
       this.undoLink.parentNode.removeChild (this.undoLink);
       this.undoLink = null;
@@ -1706,13 +1706,13 @@ window.HotCat = {
       }
       return evtKill (evt);
     },
-
+ 
     inactivate : function () {
       if (this.list) this.list.style.display = 'none';
       if (this.engineSelector) this.engineSelector.style.display = 'none';
       this.is_active = false;
     },
-
+ 
     acceptCheck : function (dontCheck) {
       this.sanitizeInput ();
       var value = this.text.value.split('|');
@@ -1738,7 +1738,7 @@ window.HotCat = {
       this.currentExists = this.inputExists;
       return true;
     },
-
+ 
     accept : function (evt) {
       this.noCommit = (evtKeys (evt) & 1) != 0;
       var result = evtKill (evt);
@@ -1764,7 +1764,7 @@ window.HotCat = {
       }
       return result;
     },
-
+ 
     close : function () {
       if (!this.catLink) {
         // Create a catLink
@@ -1817,7 +1817,7 @@ window.HotCat = {
       checkMultiInput ();
       forceRedraw ();
     },
-
+ 
     commit : function (comment) {
       // Check again to catch problem cases after redirect resolution
       if (   (   this.currentCategory == this.originalCategory
@@ -1840,12 +1840,12 @@ window.HotCat = {
         initiateEdit (function (failure) {performChanges (failure, self);}, function (msg) {alert (msg);});
       }
     },
-
+ 
     remove : function (evt) {
       this.doRemove (evtKeys (evt) & 1);
       return evtKill (evt);
     },
-
+ 
     doRemove : function (noCommit) {
       if (this.isAddCategory) { // Empty input on adding a new category
         this.cancel ();
@@ -1883,7 +1883,7 @@ window.HotCat = {
         }
       }
     },
-
+ 
     restore : function (evt) {
       // Can occur only if we do have a commit button and are not on the upload form
       this.catLink.title = this.currentKey;
@@ -1901,16 +1901,16 @@ window.HotCat = {
       checkMultiInput ();
       return evtKill (evt);
     },
-
+ 
     // Internal operations
-
+ 
     selectEngine : function (engineName) {
       if (!this.engineSelector) return;
       for (var i = 0; i < this.engineSelector.options.length; i++) {
         this.engineSelector.options[i].selected = this.engineSelector.options[i].value == engineName;
       }
     },
-
+ 
     sanitizeInput : function () {
       var v = this.text.value || "";
       v = v.replace(/^(\s|_)+/, ""); // Trim leading blanks and underscores
@@ -1923,14 +1923,14 @@ window.HotCat = {
       if (this.text.value != null && this.text.value != v)
         this.text.value = v;
     },
-
+ 
     makeCall : function (url, callbackObj, engine, queryKey, cleanKey) {
       var cb = callbackObj;
       var e  = engine;
       var v  = queryKey;
       var z  = cleanKey;
       var thisObj = this;
-
+ 
       function done () {
         cb.callsMade++;
         if (cb.callsMade === cb.nofCalls) {
@@ -1943,7 +1943,7 @@ window.HotCat = {
           delete cb;
         }
       }
-
+ 
       getJSON ({
         uri : url
        ,success : function (json) {
@@ -1960,9 +1960,9 @@ window.HotCat = {
        ,error : function (req) {if (!req) noSuggestions = true; cb.dontCache = true; done(); }
       });           
     },
-
+ 
     callbackObj : null,
-
+ 
     textchange : function (dont_autocomplete, force) {
       // Hide all other lists
       makeActive (this);
@@ -1981,10 +1981,10 @@ window.HotCat = {
       if (this.lastInput != v) checkMultiInput ();
       this.lastInput = v;
       this.lastRealInput = v;
-
+ 
       // Mark blacklisted inputs.
       this.ok.disabled = v.length > 0 && HotCat.blacklist != null && HotCat.blacklist.test (v);
-
+ 
       if (noSuggestions) {
         // No Ajax: just make sure the list is hidden
         if (this.list) this.list.style.display = 'none';
@@ -1992,11 +1992,11 @@ window.HotCat = {
         if (this.icon) this.icon.style.display = 'none';
         return;
       }
-
+ 
       if (v.length === 0) { this.showSuggestions([]); return; }
       if (this.callbackObj) this.callbackObj.cancelled = true;
       var engineName  = suggestionConfigs[this.engine] ? this.engine : 'combined';
-
+ 
       var cleanKey = v.replace(/[\u200E\u200F\u202A-\u202E]/g, "")
                       .replace(wikiTextBlankRE, ' ');
       cleanKey = replaceShortcuts(cleanKey, HotCat.shortcuts);
@@ -2005,13 +2005,13 @@ window.HotCat = {
         this.showSuggestions (suggestionConfigs[engineName].cache[cleanKey], dont_autocomplete, v, engineName);
         return;
       }
-
+ 
       var engines = suggestionConfigs[engineName].engines;
       this.callbackObj =
         {allTitles: null, callsMade: 0, nofCalls: engines.length, noCompletion: dont_autocomplete, engineName: engineName};
       this.makeCalls (engines, this.callbackObj, v, cleanKey);
     },
-
+ 
     makeCalls : function (engines, cb, v, cleanKey) {
       for (var j = 0; j < engines.length; j++) {
         var engine = suggestionEngines[engines[j]];
@@ -2019,7 +2019,7 @@ window.HotCat = {
         this.makeCall (url, cb, engine, v, cleanKey);
       }
     },
-
+ 
     showSuggestions : function (titles, dontAutocomplete, queryKey, engineName) {
       this.text.readOnly = false;
       this.dab = null;
@@ -2044,12 +2044,12 @@ window.HotCat = {
           return;
       }
       this.lastQuery = queryKey;
-
+ 
       // Get current input text
       var v = this.text.value.split('|');
       var key = v.length > 1 ? '|' + v[1] : "";
       v = (HotCat.capitalizePageNames ? capitalize (v[0]) : v[0]);
-
+ 
       if (titles) {
         var vLow = v.toLowerCase ();
         // Strip blacklisted categories
@@ -2099,7 +2099,7 @@ window.HotCat = {
         }
         return;
       }
-
+ 
       var firstTitle = titles[0];
       var completed = this.autoComplete (firstTitle, v, key, dontAutocomplete);
       var existing = completed || firstTitle == replaceShortcuts(v, HotCat.shortcuts);
@@ -2125,7 +2125,7 @@ window.HotCat = {
       }
       this.displayList();
     },
-
+ 
     displayList : function () {
       this.showsList = true;
       if (!this.is_active) {
@@ -2154,7 +2154,7 @@ window.HotCat = {
       // Approximate calculation of maximum list size
       var maxListHeight = listh;
       if (nofItems < HotCat.list_size) maxListHeight = (listh / nofItems) * HotCat.list_size;
-
+ 
       function scroll_offset (what) {
         var s = 'scroll' + what;
         return (document.documentElement ? document.documentElement[s] : 0)
@@ -2184,7 +2184,7 @@ window.HotCat = {
         } while (node);
         return {x : l, y : t};
       }
-
+ 
       var textPos = position (this.text);
       var nl = 0;
       var nt = 0;
@@ -2240,7 +2240,7 @@ window.HotCat = {
         this.list.style.left = nl - (l_pos.x + w - scroll - view_w) + 'px';
       }
     },
-
+ 
     autoComplete : function (newVal, actVal, key, dontModify) {
       if (newVal == actVal) return true;
       if (dontModify || newVal.indexOf (actVal) != 0) return false;
@@ -2253,14 +2253,14 @@ window.HotCat = {
       this.setSelection (actVal.length, newVal.length);
       return true;
     },
-
+ 
     canSelect : function () {
       return    this.text.setSelectionRange
                || this.text.createTextRange
                ||    typeof (this.text.selectionStart) != 'undefined'
                   && typeof (this.text.selectionEnd) != 'undefined';
     },
-
+ 
     setSelection : function (from, to) {
       // this.text must be focused (at least on IE)
       if (!this.text.value) return;
@@ -2281,7 +2281,7 @@ window.HotCat = {
         new_selection.select();
       }
     },
-
+ 
     getSelection : function () {
       var from = 0, to = 0;
       // this.text must be focused (at least on IE)
@@ -2309,11 +2309,11 @@ window.HotCat = {
       }
       return {start: from, end: to};
     },
-
+ 
     saveView : function (evt) {
       this.lastSelection = this.getSelection ();
     },
-
+ 
     processKey : function (evt) {
       var dir = 0;
       switch (this.lastKey) {
@@ -2340,7 +2340,7 @@ window.HotCat = {
       }
       return true;
     },
-
+ 
     highlightSuggestion : function (dir) {
       if (noSuggestions || !this.list || this.list.style.display == 'none') return false;
       var curr = this.list.selectedIndex;
@@ -2370,7 +2370,7 @@ window.HotCat = {
       }
       return true;
     },
-
+ 
     resetKeySelection : function () {
       if (noSuggestions || !this.list || this.list.style.display == 'none') return false;
       var curr = this.list.selectedIndex;
@@ -2391,9 +2391,9 @@ window.HotCat = {
       }
       return false;
     }
-
+ 
   }; // end CategoryEditor.prototype
-
+ 
   function initialize () {
     // User configurations. Do this here, called from the onload handler, so that users can
     // override it easily in their own user script files by just declaring variables. JSconfig
@@ -2489,7 +2489,7 @@ window.HotCat = {
       is_rtl = (is_rtl == 'rtl');
     }
   }
-
+ 
   function can_edit () {
     var container = null;
     switch (skin) {
@@ -2512,7 +2512,7 @@ window.HotCat = {
     }
     return false;
   }
-
+ 
   function setup_upload () {
     onUpload = true;
     // Add an empty category bar at the end of the table containing the description, and change the onsubmit handler.
@@ -2603,9 +2603,9 @@ window.HotCat = {
       }) (form.onsubmit);
     }
   }
-
+ 
   var cleanedText = null;
-
+ 
   function isOnPage (span) {
     var catTitle = title (span.firstChild.getAttribute ('href', 2));
     if (!catTitle) return null;
@@ -2620,10 +2620,10 @@ window.HotCat = {
     result.match = find_category (cleanedText, catTitle, true);
     return result;
   }
-
+ 
   var initialized = false;
   var setupTimeout = null;
-
+ 
   function setup (additionalWork) {
     if (initialized) return;
     initialized = true;
@@ -2669,9 +2669,9 @@ window.HotCat = {
       }
     } // end if catLine exists
     if (is_rtl) catLine.dir = 'rtl';
-
+ 
     // Create editors for all existing categories
-
+ 
     function createEditors (line, is_hidden) {
       var cats = line.getElementsByTagName ('li');
       if (cats.length > 0) {
@@ -2691,7 +2691,7 @@ window.HotCat = {
       }
       return copyCats.length > 0 ? copyCats[copyCats.length-1] : null;
     }
-
+ 
     var lastSpan = createEditors (catLine, false);
     // Create one to add a new category
     var editor = new CategoryEditor(newDOM ? catLine.getElementsByTagName('ul')[0] : catLine, null, null, lastSpan != null, false);
@@ -2719,7 +2719,7 @@ window.HotCat = {
     setupCompleted.loaded(); // Trigger signal; execute registered functions
     if (window.jQuery) window.jQuery('body').trigger ('hotcatSetupCompleted');
   }
-
+ 
   function setPage (json) {
     var startTime = null;
     if (json && json.query) {
@@ -2748,7 +2748,7 @@ window.HotCat = {
               interlanguageRE = new RegExp ('((^|\\n\\r?)(\\[\\[\\s*(' + re + ')\\s*:[^\\]]+\\]\\]\\s*))+$');
             }
           }
-
+ 
         }
       }
       // Siteinfo
@@ -2768,7 +2768,7 @@ window.HotCat = {
       }
     }
   }
-
+ 
   function createCommitForm () {
     if (commitForm) return;
     var formContainer = make ('div');
@@ -2792,7 +2792,7 @@ window.HotCat = {
       + '</form>';
     commitForm = document.getElementById ('hotcatCommitForm');
   }
-
+ 
   function getPage () {
     // We know we have an article here.
     if (wgArticleId === 0) {
@@ -2813,16 +2813,16 @@ window.HotCat = {
       setupTimeout = window.setTimeout (function () {setup (createCommitForm);}, 4000); // 4 sec, just in case getting the wikitext takes longer.
     }
   }
-
+ 
   function run () {
     if (HotCat.started) return;
     HotCat.started = true;
     loadTrigger.register(really_run);
   }
-
+ 
   function really_run () {
     initialize ();
-
+ 
     if (is_rtl && is_ie6) return; // Disabled! IE6 with RTL is just too broken...
     if (!HotCat.upload_disabled && wgNamespaceNumber === -1 && wgCanonicalSpecialPageName == 'Upload' && wgUserName) {
       setup_upload ();
@@ -2839,9 +2839,9 @@ window.HotCat = {
       getPage ();
     }
   }
-
+ 
   // Legacy stuff
-
+ 
   function closeForm () {
     // Close all open editors without redirect resolution and other asynchronous stuff.
     for (var i = 0; i < editors.length; i++) {
@@ -2864,7 +2864,7 @@ window.HotCat = {
       }
     }
   }
-
+ 
   function getState () {
     var result = null;
     for (var i = 0; i < editors.length; i++) {
@@ -2880,7 +2880,7 @@ window.HotCat = {
     }
     return result;
   }
-
+ 
   function setState (state) {
     var cats = state.split ('\n');
     if (cats.length === 0) return null;
@@ -2914,23 +2914,38 @@ window.HotCat = {
     }
     return null;
   }
-
+ 
   // Now export these legacy functions
   window.hotcat_get_state  = function () { return getState(); };
   window.hotcat_set_state  = function (state) { return setState (state); };
   window.hotcat_close_form = function () { closeForm (); };
-
+ 
   if (window.mediaWiki && window.mediaWiki.config) {
     // Make sure we don't get conflicts with AjaxCategories (core development that should one day
     // replace HotCat).
     window.mediaWiki.config.set('disableAJAXCategories', true);
   }
+  // Run as soon as possible. This varies depending on MediaWiki version;
+  // window's 'load' event is always safe, but usually we can do better than that.
   if (window.jQuery) {
-    window.jQuery(document).ready(run);
+    // Post-ResourceLoader. Check for version to avoid MediaWiki bug 32537.
+    var mwVersion = (window.mediaWiki && mediaWiki.config) ? mediaWiki.config.get('wgVersion') : window.wgVersion;
+    if (parseFloat(mwVersion) > 1.20) {
+      // We can safely trigger just after user configuration is loaded.
+      mw.loader.using('user', function(){ jQuery(document).ready(run); });
+    } else {
+      // mw.loader.using('user', ...) could have unintended side-effects. Fall back to DOMContentLoaded.
+      jQuery(document.body).on('DOMContentLoaded', run);
+      // And in case we're loaded after DOMContentLoaded fires or in a browser that doesn't support it,
+      // fall back to addOnloadHook (which is definitely supported on MW 1.20 and lower).
+      // The run function itself protects against double initialization, so it's okay.
+      addOnloadHook(run);
+    }
   } else {
-    addOnloadHook (run);
+    // Pre-ResourceLoader. 
+    addOnloadHook(run);
   }
 })();
-
+ 
 } // end if (guard)
 //</source>
