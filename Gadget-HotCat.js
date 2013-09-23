@@ -48,7 +48,7 @@ if ((typeof window.HotCat == 'undefined' || window.HotCat.nodeName) && wgAction 
 hotcat_translations_from_commons = false;  //一个全局设置，关闭从公共翻译获得
 // Configuration stuff.
 window.HotCat = {
-  version: "V2.23 SLboat Mod", // 版本号信息，森亮号增加
+  version: "V2.24 SLboat Mod", // 版本号信息，森亮号增加
  
   // Localize these messages to the main language of your wiki.
   messages :
