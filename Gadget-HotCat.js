@@ -6,6 +6,7 @@
 2. MediaWiki:Gadget-HotCat.js/zh-hans语言修改
 3. 更换yes，no图标为本地
 4. 增加一个版本号信息，用[HotCat.version]访问
+5. 中文输入法支持
 这是个疯狂又巨大的脚本。
 警告，千万不要这里用这样的注释。
 <!-- 这个是热分类小工具脚本，这个注释放在外面就死了 -->
@@ -1439,10 +1440,10 @@ window.HotCat = {
               /*  想法：在这里增加监测上次的按下是不是229，以及长度是不是0，是的话那就取消下面的工作
                * 更优良的做法：监测是否输入完成了，对比内容？ 
                */
-              /* TODO：捕获enter键（winodws里没有事件），捕获1-9数字键（选字？），捕获shift候选键（windows）
+              /* TODO：@done捕获enter键（winodws里没有事件），@done捕获1-9数字键（选字？），捕获shift候选键（windows）
                * 记忆最后一次完成输入的词，这样就不再处理输入法了
               */
-              var ime_char_input = (key == 32 || (key>48 && key<57)) ; //32-space键，最通常的输出
+              var ime_char_input = (key == 32 || key == 13 || (key > 48 && key < 57)) ; //32-space键，13-Enter键，最通常的输出
               if (self.lastKey==229 && !ime_char_input ) //如果上次是中文，并且这次有激键数据
 			  {
 				  //console.log("抛弃含糊的中文事件");
