@@ -1435,6 +1435,19 @@ window.HotCat = {
                   return;
                 }
               }
+              //SLboat-ime-fix-patch -> 森亮号的中文输入补丁
+              /*  想法：在这里增加监测上次的按下是不是229，以及长度是不是0，是的话那就取消下面的工作
+               * 更优良的做法：监测是否输入完成了，对比内容？ 
+               */
+              /* TODO：捕获enter键（winodws里没有事件），捕获1-9数字键（选字？），捕获shift候选键（windows）
+               * 记忆最后一次完成输入的词，这样就不再处理输入法了
+              */
+              var ime_char_input = (key == 32 || (key>48 && key<57)) ; //32-space键，最通常的输出
+              if (self.lastKey==229 && !ime_char_input ) //如果上次是中文，并且这次有激键数据
+			  {
+				  //console.log("抛弃含糊的中文事件");
+				  return;  //抛弃一切？
+			  }
               // Also do this for ESC as a workaround for Firefox bug 524360
               // https://bugzilla.mozilla.org/show_bug.cgi?id=524360
               var dont_autocomplete = (key == 8 || key == 46 || key == 27); // BS, DEL, ESC
