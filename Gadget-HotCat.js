@@ -377,7 +377,11 @@ window.HotCat = {
   // Load local configurations, overriding the pre-set default values in the HotCat object above. This is always loaded
   // from the wiki where this script is executing, even if this script itself is hotlinked from the Commons. This can
   // be used to change the default settings, or to provide localized interface texts for edit summaries and so on.
-  loadJS ('MediaWiki:Gadget-HotCat.js/local_defaults');
+  
+  /* 森亮修改：去掉载入默认设置，设置费公共wiki翻译 */
+  //loadJS ('MediaWiki:Gadget-HotCat.js/local_defaults');
+  //设置非公共wiki翻译 
+ window.hotcat_translations_from_commons = false; //一个全局设置，关闭从公共翻译获得
  
   // Load localized UI texts. These are the texts that HotCat displays on the page itself. Texts shown in edit summaries
   // should be localized in /local_defaults above.
