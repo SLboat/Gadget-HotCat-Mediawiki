@@ -3,7 +3,7 @@
 /*
 森亮航海见识的修改：
 1. 整合搜索等文字修改
-2. MediaWiki:Gadget-HotCat.js/zh-hans语言修改
+2. MediaWiki:Gadget-HotCat.js/zh-cn语言修改
 3. 更换yes，no图标为本地
 4. 增加一个版本号信息，用[HotCat.version]访问
 5. 中文输入法支持
@@ -379,8 +379,8 @@ window.HotCat = {
   // Load local configurations, overriding the pre-set default values in the HotCat object above. This is always loaded
   // from the wiki where this script is executing, even if this script itself is hotlinked from the Commons. This can
   // be used to change the default settings, or to provide localized interface texts for edit summaries and so on.
-  /* 森亮修改：去掉载入默认设置，设置费公共wiki翻译 */
-  //loadJS ('MediaWiki:Gadget-HotCat.js/local_defaults');
+  loadJS ('MediaWiki:Gadget-HotCat.js/local_defaults'); //看起来不能禁止掉这个玩意，禁止掉的话看起来都不会载入了呢
+
   //设置非公共wiki翻译 
  window.hotcat_translations_from_commons = false; //一个全局设置，关闭从公共翻译获得
 
