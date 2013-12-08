@@ -18,7 +18,7 @@ https://github.com/SLboat/Gadget-HotCat-Mediawiki/
 */
  
 /*
-  HotCat V2.23 SLboat Mod
+  HotCat V2.26 SLboat Mod
  
   Ajax-based simple Category manager. Allows adding/removing/changing categories on a page view.
   Supports multiple category changes, as well as redirect and disambiguation resolution. Also
@@ -50,7 +50,7 @@ if ((typeof window.HotCat == 'undefined' || window.HotCat.nodeName) && wgAction 
 
 // Configuration stuff.
 window.HotCat = {
-  version: "V2.23 SLboat Mod", // 版本号信息，森亮号增加
+  version: "V2.26 SLboat Mod", // 版本号信息，森亮号增加
  
   // Localize these messages to the main language of your wiki.
   messages :
@@ -238,10 +238,12 @@ window.HotCat = {
     }
     globals = null;
   }
-  // More backwards compatibility. We have four places where we test for the browser: once for
-  // Safari < 3.0, once for WebKit (Chrome or Safari, any versions), and twice for IE <= 6.
+  // More backwards compatibility. We have a few places where we test for the browser: once for
+  // Safari < 3.0, twice for WebKit (Chrome or Safari, any versions), twice for IE <= 6, and
+  // once for IE < 8.
   var ua = navigator.userAgent.toLowerCase();
   var is_ie6 = /msie ([0-9]{1,}[\.0-9]{0,})/.exec(ua) != null && parseFloat(RegExp.$1) <= 6.0;
+  var is_ie_lt8 = /msie ([0-9]{1,}[\.0-9]{0,})/.exec(ua) != null && parseFloat(RegExp.$1) < 8.0;
   var is_webkit = /applewebkit\/\d+/.test(ua) && ua.indexOf ('spoofer') < 0;  
   // And even more compatbility. HotCat was developed without jQuery, and anyway current jQuery
   // (1.7.1) doesn't seem to support in jquery.getJSON() or jQuery.ajax() the automatic
@@ -2158,11 +2160,12 @@ window.HotCat = {
       this.list.style.zIndex   = 5;
       this.list.style.position = 'absolute';
       // Compute initial list position. First the height.
+      var anchor = is_rtl ? 'right' : 'left';
       var listh = 0;
       if (this.list.style.display == 'none') {
         // Off-screen display to get the height
         this.list.style.top = this.text.offsetTop + 'px';
-        this.list.style.left = '-10000px';
+        this.list.style[anchor] = '-10000px';
         this.list.style.display = "";
         listh = this.list.offsetHeight;
         this.list.style.display = 'none';
@@ -2173,11 +2176,6 @@ window.HotCat = {
       var maxListHeight = listh;
       if (nofItems < HotCat.list_size) maxListHeight = (listh / nofItems) * HotCat.list_size;
 
-      function scroll_offset (what) {
-        var s = 'scroll' + what;
-        return (document.documentElement ? document.documentElement[s] : 0)
-               || document.body[s] || 0;
-      }
       function viewport (what) {
         if (is_webkit && !document.evaluate)
           return window['inner' + what]; // Safari < 3.0
@@ -2185,6 +2183,25 @@ window.HotCat = {
         if (window.opera) return document.body[s];
         return (document.documentElement ? document.documentElement[s] : 0)
                || document.body[s] || 0;
+      }
+      function scroll_offset (what) {
+        var s = 'scroll' + what;
+        var result = (document.documentElement ? document.documentElement[s] : 0)
+               || document.body[s] || 0;
+        if (is_rtl && what == 'Left') {
+        	// RTL inconsistencies.
+        	// FF: 0 at the far right, then increasingly negative values.
+        	// IE >= 8: 0 at the far right, then increasingly positive values.
+        	// Webkit: scrollWidth - clientWidth at the far right, then down to zero.
+        	// IE 7: like webkit; IE6: disabled in RTL anyway since too many problems.
+        	// Opera: don't know...
+        	if (result < 0) result = - result;
+        	if (!is_webkit && !is_ie_lt8) {
+        		result = scroll_offset('Width') - viewport('Width') - result;
+        	}
+        	// Now all have webkit behavior, i.e. zero if at the leftmost edge.
+        }
+        return result;
       }
       function position (node) {
         // Stripped-down simplified position function. It's good enough for our purposes.
@@ -2215,15 +2232,15 @@ window.HotCat = {
         this.engineSelector.style.width = textBoxWidth + 'px'; 
         // Figure out the height of this selector: display it off-screen, then hide it again.
         if (this.engineSelector.style.display == 'none') {
-          this.engineSelector.style.left  = '-10000px';
-          this.engineSelector.style.top   = '0px';
+          this.engineSelector.style[anchor] = '-10000px';
+          this.engineSelector.style.top = '0px';
           this.engineSelector.style.display = "";
           offset = this.engineSelector.offsetHeight;
           this.engineSelector.style.display = 'none';
         } else {
           offset = this.engineSelector.offsetHeight;
         }
-        this.engineSelector.style.left  = nl + 'px';
+        this.engineSelector.style[anchor]  = nl + 'px';
       }
       if (textPos.y < maxListHeight + offset + 1) {
         // The list might extend beyond the upper border of the page. Let's avoid that by placing it
@@ -2236,26 +2253,44 @@ window.HotCat = {
       }
       this.list.style.top = nt + 'px';
       this.list.style.width = ""; // No fixed width (yet)
-      this.list.style.left = nl + 'px';
+      this.list.style[anchor] = nl + 'px';
       if (this.engineName) {
         this.selectEngine (this.engineName);
         this.engineSelector.style.display = "";
       }
       this.list.style.display = 'block';
       // Set the width of the list
-      var scroll = scroll_offset ('Left');
-      var view_w = viewport ('Width');
-      var l_pos  = position (this.list);
       if (this.list.offsetWidth < textBoxWidth ) {
         this.list.style.width = textBoxWidth + 'px';
         return;
       }
-      // Make sure that the list fits horizontally into the browser window
+      // If the list is wider than the textbox: make sure it fits horizontally into the browser window
+      var scroll = scroll_offset ('Left');
+      var view_w = viewport ('Width');
       var w      = this.list.offsetWidth;
-      if (l_pos.x + w > scroll + view_w) {
-        if (w > view_w) w = view_w;
-        this.list.style.width = w + 'px';
-        this.list.style.left = nl - (l_pos.x + w - scroll - view_w) + 'px';
+      var l_pos  = position (this.list);
+      var left   = l_pos.x;
+      var right  = left + w;
+      if (left < scroll || right > scroll + view_w) {
+        if (w > view_w) {
+          w = view_w;
+          this.list.style.width = w + 'px';
+          if (is_rtl) {
+            left = right - w;
+          } else {
+            right = left + w;
+          }
+        }
+        var relative_offset = 0;
+        if (left < scroll) {
+          relative_offset = scroll - left;
+        } else if (right > scroll + view_w) {
+          relative_offset = - (right - scroll - view_w);
+        }
+        if (is_rtl) relative_offset = - relative_offset;
+        if (relative_offset != 0) {
+          this.list.style[anchor] = (nl + relative_offset) + 'px';
+        }
       }
     },
 
@@ -2642,6 +2677,17 @@ window.HotCat = {
   var initialized = false;
   var setupTimeout = null;
 
+  function findByClass (scope, tag, className) {
+  	// Compatibility routine. Uses jQuery if available, otherwise works with older getElementsByClassName
+  	var result;
+  	if (window.jQuery) {
+  	  result = window.jQuery(scope).find(tag + '.' + className);
+  	} else {
+  	  result = getElementsByClassName(scope, tag, className);
+  	}
+  	return (result && result.length) ? result[0] : null;
+  }
+  
   function setup (additionalWork) {
     if (initialized) return;
     initialized = true;
@@ -2653,12 +2699,12 @@ window.HotCat = {
     // each category, and add the + link.
     catLine =   catLine                                                  // Special:Upload
              || document.getElementById ('mw-normal-catlinks')           // MW >= 1.13alpha
-             || getElementsByClassName (document , 'p' , 'catlinks')[0]; // MW < 1.13
+             || findByClass (document , 'p' , 'catlinks');               // MW < 1.13
     var hiddenCats = document.getElementById ('mw-hidden-catlinks');
     if (!catLine) {
       var footer = null;
       if (!hiddenCats) {
-        footer = getElementsByClassName (document , 'div' , 'printfooter')[0];
+        footer = findByClass (document , 'div' , 'printfooter');
         if (!footer) return; // Don't know where to insert the category line
       }
       catLine = make ('div');
@@ -2943,10 +2989,26 @@ window.HotCat = {
     // replace HotCat).
     window.mediaWiki.config.set('disableAJAXCategories', true);
   }
+  // Run as soon as possible. This varies depending on MediaWiki version;
+  // window's 'load' event is always safe, but usually we can do better than that.
   if (window.jQuery) {
-    window.jQuery(document).ready(run);
+    // Post-ResourceLoader. Check for version to avoid MediaWiki bug 32537.
+    var mwVersion = (window.mediaWiki && mediaWiki.config) ? mediaWiki.config.get('wgVersion') : window.wgVersion;
+    if (parseFloat(mwVersion) > 1.20) {
+      // We can safely trigger just after user configuration is loaded. Also start HotCat if the user module fails to load.
+      var startHotCat = function(){ jQuery(document).ready(run); };
+      mw.loader.using('user', startHotCat, startHotCat);
+    } else {
+      // mw.loader.using('user', ...) could have unintended side-effects. Fall back to DOMContentLoaded.
+      jQuery(document.body).on('DOMContentLoaded', run);
+      // And in case we're loaded after DOMContentLoaded fires or in a browser that doesn't support it,
+      // fall back to addOnloadHook (which is definitely supported on MW 1.20 and lower).
+      // The run function itself protects against double initialization, so it's okay.
+      addOnloadHook(run);
+    }
   } else {
-    addOnloadHook (run);
+    // Pre-ResourceLoader. 
+    addOnloadHook(run);
   }
 })();
 
